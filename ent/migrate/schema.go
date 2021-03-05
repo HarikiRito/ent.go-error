@@ -13,6 +13,7 @@ var (
 		{Name: "id", Type: field.TypeUint64, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "note", Type: field.TypeString},
 	}
 	// TestsTable holds the schema information for the "tests" table.
 	TestsTable = &schema.Table{

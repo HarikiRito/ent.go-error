@@ -33,6 +33,12 @@ func (tu *TestUpdate) SetUpdatedAt(t time.Time) *TestUpdate {
 	return tu
 }
 
+// SetNote sets the "note" field.
+func (tu *TestUpdate) SetNote(s string) *TestUpdate {
+	tu.mutation.SetNote(s)
+	return tu
+}
+
 // Mutation returns the TestMutation object of the builder.
 func (tu *TestUpdate) Mutation() *TestMutation {
 	return tu.mutation
@@ -123,6 +129,13 @@ func (tu *TestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: test.FieldUpdatedAt,
 		})
 	}
+	if value, ok := tu.mutation.Note(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: test.FieldNote,
+		})
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, tu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{test.Label}
@@ -144,6 +157,12 @@ type TestUpdateOne struct {
 // SetUpdatedAt sets the "updated_at" field.
 func (tuo *TestUpdateOne) SetUpdatedAt(t time.Time) *TestUpdateOne {
 	tuo.mutation.SetUpdatedAt(t)
+	return tuo
+}
+
+// SetNote sets the "note" field.
+func (tuo *TestUpdateOne) SetNote(s string) *TestUpdateOne {
+	tuo.mutation.SetNote(s)
 	return tuo
 }
 
@@ -240,6 +259,13 @@ func (tuo *TestUpdateOne) sqlSave(ctx context.Context) (_node *Test, err error) 
 			Type:   field.TypeTime,
 			Value:  value,
 			Column: test.FieldUpdatedAt,
+		})
+	}
+	if value, ok := tuo.mutation.Note(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: test.FieldNote,
 		})
 	}
 	_node = &Test{config: tuo.config}

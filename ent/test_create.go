@@ -48,6 +48,12 @@ func (tc *TestCreate) SetNillableUpdatedAt(t *time.Time) *TestCreate {
 	return tc
 }
 
+// SetNote sets the "note" field.
+func (tc *TestCreate) SetNote(s string) *TestCreate {
+	tc.mutation.SetNote(s)
+	return tc
+}
+
 // SetID sets the "id" field.
 func (tc *TestCreate) SetID(u uint64) *TestCreate {
 	tc.mutation.SetID(u)
@@ -124,6 +130,9 @@ func (tc *TestCreate) check() error {
 	if _, ok := tc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New("ent: missing required field \"updated_at\"")}
 	}
+	if _, ok := tc.mutation.Note(); !ok {
+		return &ValidationError{Name: "note", err: errors.New("ent: missing required field \"note\"")}
+	}
 	if v, ok := tc.mutation.ID(); ok {
 		if err := test.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf("ent: validator failed for field \"id\": %w", err)}
@@ -177,6 +186,14 @@ func (tc *TestCreate) createSpec() (*Test, *sqlgraph.CreateSpec) {
 			Column: test.FieldUpdatedAt,
 		})
 		_node.UpdatedAt = value
+	}
+	if value, ok := tc.mutation.Note(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: test.FieldNote,
+		})
+		_node.Note = value
 	}
 	return _node, _spec
 }

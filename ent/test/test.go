@@ -4,6 +4,8 @@ package test
 
 import (
 	"time"
+
+	"entgo.io/ent"
 )
 
 const (
@@ -15,6 +17,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// FieldNote holds the string denoting the note field in the database.
+	FieldNote = "note"
 
 	// Table holds the table name of the test in the database.
 	Table = "tests"
@@ -25,6 +29,7 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldNote,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -37,7 +42,14 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "abc/ent/runtime"
+//
 var (
+	Hooks [1]ent.Hook
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.

@@ -20,6 +20,8 @@ type Test struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Note holds the value of the "note" field.
+	Note string `json:"note,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -29,6 +31,8 @@ func (*Test) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case test.FieldID:
 			values[i] = &sql.NullInt64{}
+		case test.FieldNote:
+			values[i] = &sql.NullString{}
 		case test.FieldCreatedAt, test.FieldUpdatedAt:
 			values[i] = &sql.NullTime{}
 		default:
@@ -64,6 +68,12 @@ func (t *Test) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				t.UpdatedAt = value.Time
 			}
+		case test.FieldNote:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field note", values[i])
+			} else if value.Valid {
+				t.Note = value.String
+			}
 		}
 	}
 	return nil
@@ -96,6 +106,8 @@ func (t *Test) String() string {
 	builder.WriteString(t.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", updated_at=")
 	builder.WriteString(t.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", note=")
+	builder.WriteString(t.Note)
 	builder.WriteByte(')')
 	return builder.String()
 }

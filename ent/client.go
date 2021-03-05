@@ -206,5 +206,6 @@ func (c *TestClient) GetX(ctx context.Context, id uint64) *Test {
 
 // Hooks returns the client hooks.
 func (c *TestClient) Hooks() []Hook {
-	return c.hooks.Test
+	hooks := c.hooks.Test
+	return append(hooks[:len(hooks):len(hooks)], test.Hooks[:]...)
 }

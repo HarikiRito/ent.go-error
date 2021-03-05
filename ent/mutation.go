@@ -33,6 +33,7 @@ type TestMutation struct {
 	id            *uint64
 	created_at    *time.Time
 	updated_at    *time.Time
+	note          *string
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Test, error)
@@ -196,6 +197,42 @@ func (m *TestMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// SetNote sets the "note" field.
+func (m *TestMutation) SetNote(s string) {
+	m.note = &s
+}
+
+// Note returns the value of the "note" field in the mutation.
+func (m *TestMutation) Note() (r string, exists bool) {
+	v := m.note
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNote returns the old "note" field's value of the Test entity.
+// If the Test object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestMutation) OldNote(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldNote is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldNote requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNote: %w", err)
+	}
+	return oldValue.Note, nil
+}
+
+// ResetNote resets all changes to the "note" field.
+func (m *TestMutation) ResetNote() {
+	m.note = nil
+}
+
 // Op returns the operation name.
 func (m *TestMutation) Op() Op {
 	return m.op
@@ -210,12 +247,15 @@ func (m *TestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TestMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
 	if m.created_at != nil {
 		fields = append(fields, test.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, test.FieldUpdatedAt)
+	}
+	if m.note != nil {
+		fields = append(fields, test.FieldNote)
 	}
 	return fields
 }
@@ -229,6 +269,8 @@ func (m *TestMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case test.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case test.FieldNote:
+		return m.Note()
 	}
 	return nil, false
 }
@@ -242,6 +284,8 @@ func (m *TestMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldCreatedAt(ctx)
 	case test.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case test.FieldNote:
+		return m.OldNote(ctx)
 	}
 	return nil, fmt.Errorf("unknown Test field %s", name)
 }
@@ -264,6 +308,13 @@ func (m *TestMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
+		return nil
+	case test.FieldNote:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNote(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Test field %s", name)
@@ -319,6 +370,9 @@ func (m *TestMutation) ResetField(name string) error {
 		return nil
 	case test.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case test.FieldNote:
+		m.ResetNote()
 		return nil
 	}
 	return fmt.Errorf("unknown Test field %s", name)
